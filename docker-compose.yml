@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver-db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Password123!
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+
+  product-api:
+    image: product-api:latest
+    container_name: product-api-service
+    build:
+      context: .
+      dockerfile: src/Product.Api/Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=ProductManagementDb;User Id=sa;Password=Password123!;TrustServerCertificate=True;
+      - JwtSettings__Secret=SuperSecretKeyForJWTAuthThatIsVeryLongAndSecure1234567890!
+      - JwtSettings__Issuer=ProductManagementApi
+      - JwtSettings__Audience=ProductManagementClients
+      - JwtSettings__AccessTokenExpirationMinutes=15
+    depends_on:
+      - sqlserver
+
+volumes:
+  sqlserver-data:
