@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Reflection;
 using System.Text;
 using Asp.Versioning;
 using FluentValidation;
@@ -108,6 +110,13 @@ namespace Product.Api.Extensions
                     Version = "v1",
                     Description = "RESTful backend API solutions for CRUD operations around Products and Items."
                 });
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                if (File.Exists(xmlPath))
+                {
+                    c.IncludeXmlComments(xmlPath);
+                }
 
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
