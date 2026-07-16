@@ -16,6 +16,7 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
+
 try
 {
     Log.Information("Starting web host");
