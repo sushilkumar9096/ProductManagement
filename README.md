@@ -298,17 +298,35 @@ sequenceDiagram
 
 ---
 
-## 📊 Swagger Screenshot
+## 📊 Swagger & API Screenshots
 
-Swagger interactive documentation is fully integrated, enabling developers to test endpoints, view request/response DTO schemas, and submit Bearer credentials directly.
+Below are the actual screenshots showing the interactive Swagger API documentation playground and testing operations:
 
-![Swagger Playground Mockup](docs/screenshots/swagger_ui.png)
+### 1. Swagger UI Main Dashboard
+The Swagger playground hosts all Auth, Products, and Items endpoints:
+![Swagger Home](docs/screenshots/swagger_home.png)
+
+### 2. User Registration Endpoint
+Requesting new user registration via the POST action body:
+![User Registration](docs/screenshots/swagger_register_request.png)
+
+### 3. Successful Authentication & JWT Token Return
+Successful `200 OK` response returning the short-lived JWT access token and refresh token:
+![Successful Login Response](docs/screenshots/swagger_login_response.png)
+
+### 4. Product Catalog Resource Endpoints
+Managing product catalogs via GET, POST, PUT, and DELETE methods:
+![Product Catalog Actions](docs/screenshots/swagger_products.png)
+
+### 5. Data Transfer Object (DTO) Schemas
+Underlying request and response DTO schemas read dynamically from class configurations:
+![Swagger DTO Schemas](docs/screenshots/swagger_schemas.png)
 
 ---
 
-## 🖥️ Project Screenshots
+## 🖥️ Project Dashboard Mockup
 
-Below is a mockup of a modern web application client interacting with the Product Management API, showing real-time statistics (total products, active tokens, and current inventories):
+Below is a conceptual mockup of a premium React/Next.js dashboard client interacting with the Product Management API, displaying key metrics:
 
 ![Dashboard Interface Mockup](docs/screenshots/dashboard_mockup.png)
 
