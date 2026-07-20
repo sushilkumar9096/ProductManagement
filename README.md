@@ -16,13 +16,13 @@ A robust, enterprise-grade ASP.NET Core 8 Web API solution designed for managing
 3. [Tech Stack](#-tech-stack)
 4. [Architecture](#-architecture)
 5. [Folder Structure](#-folder-structure)
-6. [Database Setup](#-database-setup)
-7. [How to Run](#-how-to-run)
-8. [Docker Instructions](#-docker-instructions)
-9. [Authentication Flow](#-authentication-flow)
-10. [API Endpoints](#-api-endpoints)
-11. [Swagger Screenshot](#-swagger-screenshot)
-12. [Project Screenshots](#-project-screenshots)
+6. [Documentation](#-documentation)
+7. [Database Setup](#-database-setup)
+8. [How to Run](#-how-to-run)
+9. [Docker Instructions](#-docker-instructions)
+10. [Authentication Flow](#-authentication-flow)
+11. [API Endpoints](#-api-endpoints)
+12. [Swagger & API Screenshots](#-swagger--api-screenshots)
 13. [Future Improvements](#-future-improvements)
 
 ---
@@ -141,6 +141,48 @@ ProductManagement/
 ├── ProductManagement.slnx         # Solution definition file
 └── README.md                      # This documentation file
 ```
+
+---
+
+## 📄 Documentation
+
+This section describes the various layers of documentation configured within the codebase:
+
+### 1. OpenAPI / Swagger Documentation
+Interactive API playground and specification are automatically generated for all endpoints using **Swashbuckle.AspNetCore**:
+* **Access URL**: Once the API is running, access `https://localhost:7200/swagger/index.html` (or `http://localhost:8080/swagger` in Docker).
+* **Triple-Slash XML Comments**: Endpoints are documented using standard XML tags. The system compiles these comments into an XML file (`Product.Api.xml`) at build time (configured via `<GenerateDocumentationFile>true</GenerateDocumentationFile>` in [Product.Api.csproj](file:///d:/Asp.NetCore_WEBAPI/ProductManagement/src/Product.Api/Product.Api.csproj)). Swashbuckle reads this metadata to construct rich parameters and response schemas in the UI.
+
+### 2. Code Documentation (XML Comments vs JSDoc)
+Because this is a back-end C# (.NET) codebase rather than a JavaScript/TypeScript project, standard **C# XML Documentation Comments** are used in place of JSDoc syntax. Both formats serve the identical purpose of providing structured method metadata:
+
+| Feature | JSDoc (JS/TS) | C# XML Comments (.NET) |
+|---|---|---|
+| **Syntax** | `/** Description */` | `/// <summary>Description</summary>` |
+| **Parameters** | `@param {type} name Description` | `<param name="name">Description</param>` |
+| **Return Values** | `@returns {type} Description` | `<returns>Description</returns>` |
+| **Response Type** | N/A | `<response code="200">Description</response>` |
+
+Example from [AuthController.cs](file:///d:/Asp.NetCore_WEBAPI/ProductManagement/src/Product.Api/Controllers/v1/AuthController.cs):
+```csharp
+/// <summary>
+/// Registers a new user.
+/// </summary>
+/// <param name="request">The registration details.</param>
+/// <returns>A token response with the access and refresh tokens.</returns>
+/// <response code="200">User registered successfully.</response>
+[HttpPost("register")]
+public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+```
+
+### 3. High-Level Authentication Flow
+The security mechanism is detailed in the [Authentication Flow](#-authentication-flow) section. It maps out user logins, short-lived JWT token issuance, Refresh Token Rotation (RTR), and token reuse attack protection.
+
+### 4. High-Level Environment Setup
+High-level instructions to configure connection strings, run EF Core CLI migrations, and set up LocalDB are documented under the [Database Setup](#-database-setup) section.
+
+### 5. High-Level Deployment Procedures
+High-level steps for containerizing the API using multi-stage builds and launching orchestration are outlined under [Docker Instructions](#-docker-instructions).
 
 ---
 
