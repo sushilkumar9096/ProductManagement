@@ -318,20 +318,11 @@ Successful `200 OK` response returning the short-lived JWT access token and refr
 Managing product catalogs via GET, POST, PUT, and DELETE methods:
 ![Product Catalog Actions](docs/screenshots/swagger_products.png)
 
-### 5. Data Transfer Object (DTO) Schemas
-Underlying request and response DTO schemas read dynamically from class configurations:
-![Swagger DTO Schemas](docs/screenshots/swagger_schemas.png)
+### 5. Product Items Resource Endpoints
+Managing inventory items (child resources of products) via GET, POST, PUT, and DELETE methods:
+![Product Items Actions](docs/screenshots/swagger_items.png)
 
 ---
-
-## 🖥️ Project Dashboard Mockup
-
-Below is a conceptual mockup of a premium React/Next.js dashboard client interacting with the Product Management API, displaying key metrics:
-
-![Dashboard Interface Mockup](docs/screenshots/dashboard_mockup.png)
-
----
-
 ## 🚀 Future Improvements
 
 To transition this project into a production-level service, the following improvements are recommended:
