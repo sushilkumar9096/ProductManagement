@@ -88,6 +88,51 @@ graph TD
 
 ---
 
+## 🔄 Application Execution Flow
+
+Visualizes how an incoming API request flows through ASP.NET Core Middlewares, Filters, Controllers, Application Services, Repositories, and the SQL Server Database:
+
+```mermaid
+flowchart TD
+    Client["Client, Swagger, or Postman"] -->|HTTP Request| Cors["1. CORS & Response Compression"]
+    
+    subgraph Middlewares["Middleware Pipeline"]
+        Cors --> ExceptionMW["2. Global Exception Handling Middleware"]
+        ExceptionMW --> AuthMW["3. JWT Authentication & Authorization"]
+    end
+
+    AuthMW --> Routing["4. API Versioning & Controller Routing"]
+    
+    subgraph Controllers["Presentation Layer (Product.Api)"]
+        Routing --> ValidationFilter{"5. FluentValidation Filter"}
+        ValidationFilter -->|Invalid Payload| Resp400["HTTP 400 Bad Request"]
+        ValidationFilter -->|Valid Payload| Controller["6. API Controller v1"]
+    end
+
+    subgraph Services["Application Layer (Product.Application)"]
+        Controller --> AppService["7. Application Service (Product, Item, Auth)"]
+        AppService --> AutoMapper["8. AutoMapper DTO Mapping"]
+    end
+
+    subgraph Persistence["Infrastructure Layer (Product.Infrastructure)"]
+        AppService --> UoW["9. Unit of Work & Repositories"]
+        UoW --> EFCore["10. Entity Framework Core DbContext"]
+        EFCore <-->|SQL Queries and Migrations| SQLDB[("SQL Server Database")]
+    end
+
+    EFCore -->|Entity Data| AppService
+    AppService -->|DTO Result| Controller
+    Controller -->|HTTP 200 / 201 / 204| Client
+
+    style Client fill:#1565c0,stroke:#0d47a1,color:#fff
+    style Middlewares fill:#37474f,stroke:#263238,color:#fff
+    style Controllers fill:#ad1457,stroke:#880e4f,color:#fff
+    style Services fill:#2e7d32,stroke:#1b5e20,color:#fff
+    style Persistence fill:#e65100,stroke:#b71c1c,color:#fff
+```
+
+---
+
 ## 📂 Folder Structure
 
 The structural organization of the repository is detailed below:
@@ -353,6 +398,80 @@ sequenceDiagram
     end
 ```
 
+
+---
+
+## 🔑 Step-by-Step Register & Login Guide
+
+Follow these steps to register a new account, authenticate, acquire JWT tokens, and execute authorized API calls:
+
+### 1. Register a New Account
+Send a `POST` request to `/api/v1/auth/register`:
+
+* **Endpoint**: `POST https://localhost:7200/api/v1/auth/register` (or `http://localhost:8080/api/v1/auth/register` in Docker)
+* **Request Body (JSON)**:
+  ```json
+  {
+    "username": "admin_user",
+    "password": "Password123!",
+    "role": "Administrator"
+  }
+  ```
+  *(Supported Roles: `"Administrator"` for full CRUD permissions, or `"User"` for read-only access).*
+
+* **cURL Command**:
+  ```bash
+  curl -X POST "https://localhost:7200/api/v1/auth/register" \
+       -H "Content-Type: application/json" \
+       -d '{"username":"admin_user","password":"Password123!","role":"Administrator"}'
+  ```
+
+---
+
+### 2. Authenticate & Login
+Send a `POST` request to `/api/v1/auth/login`:
+
+* **Endpoint**: `POST https://localhost:7200/api/v1/auth/login`
+* **Request Body (JSON)**:
+  ```json
+  {
+    "username": "admin_user",
+    "password": "Password123!"
+  }
+  ```
+* **Sample Response (HTTP 200 OK)**:
+  ```json
+  {
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refreshToken": "4a7b9c1d-8e2f-4a0b-9c1d-8e2f4a0b9c1d",
+    "username": "admin_user",
+    "role": "Administrator"
+  }
+  ```
+
+---
+
+### 3. Authorizing Requests in Swagger UI / Postman
+1. Copy the `accessToken` string returned in the login response.
+2. Open Swagger UI (`https://localhost:7200/swagger`).
+3. Click the green **Authorize 🔒** button at the top right of the Swagger dashboard.
+4. Enter: `Bearer <YOUR_ACCESS_TOKEN>` and click **Authorize**.
+5. You can now execute protected endpoints (such as `POST /api/v1/products` or `GET /api/v1/products`).
+
+---
+
+### 4. Refreshing Expired Access Tokens (Token Rotation)
+When your Access Token expires (after 15 minutes), exchange your current Refresh Token for a new token pair:
+
+* **Endpoint**: `POST /api/v1/auth/refresh`
+* **Request Body (JSON)**:
+  ```json
+  {
+    "accessToken": "<EXPIRED_ACCESS_TOKEN>",
+    "refreshToken": "<CURRENT_REFRESH_TOKEN>"
+  }
+  ```
+
 ---
 
 ## 🔌 API Endpoints
@@ -387,19 +506,19 @@ sequenceDiagram
 
 ## 📊 Swagger & API Screenshots
 
-Below are the actual screenshots showing the interactive Swagger API documentation playground and testing operations:
+Below are actual screenshots demonstrating the interactive Swagger API playground and execution flows:
 
 ### 1. Swagger UI Main Dashboard
 The Swagger playground hosts all Auth, Products, and Items endpoints:
-![Swagger Home](docs/screenshots/swagger_home.png)
+![Swagger Home](Imaages/Swagger_Home_Dashboard.png)
 
 ### 2. User Registration Endpoint
 Requesting new user registration via the POST action body:
-![User Registration](docs/screenshots/swagger_register_request.png)
+![User Registration](Imaages/User_Registration_Request.png)
 
 ### 3. Successful Authentication & JWT Token Return
 Successful `200 OK` response returning the short-lived JWT access token and refresh token:
-![Successful Login Response](docs/screenshots/swagger_login_response.png)
+![Successful Login Response](Imaages/Jwt_Authentication_Token.png)
 
 ### 4. Product Catalog Resource Endpoints
 Managing product catalogs via GET, POST, PUT, and DELETE methods:
