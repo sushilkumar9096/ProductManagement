@@ -71,27 +71,34 @@ try
         var services = scope.ServiceProvider;
         var context = services.GetRequiredService<ApplicationDbContext>();
         
-        int retries = 6;
-        while (retries > 0)
+        if (context.Database.IsRelational())
         {
-            try
+            int retries = 6;
+            while (retries > 0)
             {
-                Log.Information("Attempting database migration...");
-                context.Database.Migrate();
-                Log.Information("Database migration successful.");
-                break;
-            }
-            catch (Exception ex)
-            {
-                retries--;
-                Log.Warning("Database migration failed. Retries remaining: {Retries}. Error: {Message}", retries, ex.Message);
-                if (retries == 0)
+                try
                 {
-                    Log.Fatal(ex, "Database migration failed. Exhausted all retries.");
-                    throw;
+                    Log.Information("Attempting database migration...");
+                    context.Database.Migrate();
+                    Log.Information("Database migration successful.");
+                    break;
                 }
-                System.Threading.Thread.Sleep(5000);
+                catch (Exception ex)
+                {
+                    retries--;
+                    Log.Warning("Database migration failed. Retries remaining: {Retries}. Error: {Message}", retries, ex.Message);
+                    if (retries == 0)
+                    {
+                        Log.Fatal(ex, "Database migration failed. Exhausted all retries.");
+                        throw;
+                    }
+                    System.Threading.Thread.Sleep(5000);
+                }
             }
+        }
+        else
+        {
+            context.Database.EnsureCreated();
         }
     }
 

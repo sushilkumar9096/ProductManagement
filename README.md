@@ -218,27 +218,72 @@ During the API's bootstrap sequence (in `Program.cs`), a startup task automatica
 
 ---
 
-## 🏃 How to Run
+## 🏃 How to Run Across Devices & Platforms
 
-### Prerequisites
-* [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
-* [SQL Server LocalDB](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb) or [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+### 🖥️ 1. Running on Windows (Local Machine)
+**Prerequisites**: [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) and [SQL Server LocalDB](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb) (or Docker Desktop).
 
-### CLI Execution
-1. Clone the repository and navigate to the project root directory.
-2. Build the solution to restore packages:
+1. **Restore Packages & Build Solution**:
    ```bash
    dotnet build
    ```
-3. Run the API project:
+2. **Launch the API**:
    ```bash
    dotnet run --project src/Product.Api
    ```
-4. By default, the application runs on:
-   - HTTPS: `https://localhost:7200`
-   - HTTP: `http://localhost:5131`
-5. Open your browser and navigate to the Swagger UI page:
-   - `https://localhost:7200/swagger/index.html`
+3. **Access Swagger UI**:
+   - HTTPS: `https://localhost:7200/swagger/index.html`
+   - HTTP: `http://localhost:5131/swagger/index.html`
+
+---
+
+### 🍏 🐧 2. Running on macOS & Linux
+*Note: SQL Server LocalDB is Windows-only. On macOS and Linux, SQL Server should be run in a Docker container.*
+
+1. **Start SQL Server via Docker**:
+   ```bash
+   docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=YourSecurePassword123!" -p 1433:1433 --name mssql_dev -d mcr.microsoft.com/mssql/server:2022-latest
+   ```
+2. **Update Connection String** in `src/Product.Api/appsettings.json`:
+   ```json
+   "ConnectionStrings": {
+     "DefaultConnection": "Server=localhost,1433;Database=ProductManagementDb;User Id=sa;Password=YourSecurePassword123!;TrustServerCertificate=True;"
+   }
+   ```
+3. **Run the API**:
+   ```bash
+   dotnet run --project src/Product.Api
+   ```
+
+---
+
+### 🐳 3. Cross-Platform Docker Run (Windows, macOS, Linux — Recommended)
+*No local SQL Server or .NET SDK installation required—runs identically on any device with Docker installed.*
+
+1. **Start all services (API + SQL Server)**:
+   ```bash
+   docker-compose up --build -d
+   ```
+2. **Access Swagger UI**: `http://localhost:8080/swagger`
+3. **Stop containers**: `docker-compose down`
+
+---
+
+### 📱 🌐 4. Accessing from Other Devices on Local Network (Mobile / Other PCs)
+To test the API from mobile phones, tablets, or other computers on the same local Wi-Fi / LAN network:
+
+1. **Find your host computer's Local IP address**:
+   - **Windows**: Run `ipconfig` in CMD/PowerShell (look for `IPv4 Address`, e.g., `192.168.1.50`).
+   - **macOS / Linux**: Run `ifconfig` or `ip a`.
+2. **Bind API to all network interfaces (`0.0.0.0`)**:
+   ```bash
+   dotnet run --project src/Product.Api --urls "http://0.0.0.0:5131"
+   ```
+   *(Note: Docker Compose containers automatically listen on `0.0.0.0:8080`).*
+3. **Access from any device on your Wi-Fi**:
+   Open browser on phone or secondary PC and navigate to:
+   - `http://<YOUR_LOCAL_IP>:5131/swagger` (e.g. `http://192.168.1.50:5131/swagger`)
+
 
 ---
 
